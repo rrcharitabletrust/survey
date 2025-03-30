@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Survey Form 149 - WARD 25</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link  rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+    <div id="app">
+        <div class="container">
+            <h1 class="animate__animated animate__fadeIn">Survey Form 149 - WARD 25<br>मतदाता वैद्यकीय मदत कार्ड</h1>
+            <form @submit.prevent="submitForm">
+                <!-- Family Information Section -->
+                <div class="form-section animate__animated animate__fadeInUp">
+                    <h2>Family Information (Primary Member)</h2>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>URB No</label>
+                            <input v-model="survey.URBNo" @blur="validateFamilyURBNo" maxlength="10" minlength="10" required
+                                  :class="{'error-border': urbNoError}">
+                            <span v-if="urbNoChecking" class="checking">
+                                <i class="fas fa-spinner fa-spin"></i> Checking availability...
+                            </span>
+                            <span v-if="urbNoError" class="error">{{ urbNoError }}</span>
+                        </div>
+                        <div class="form-group">
+                            <label>VRM ID</label>
+                            <input type="number" v-model="survey.VRM_Id">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Name (English)</label>
+                            <input v-model="survey.Name" @blur="translateField('survey',0, 'Name', 'RegionalName')" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Name (Regional/Hindi)</label>
+                            <input v-model="survey.RegionalName" readonly>
+                            <div class="translation-status">
+                                <span v-if="survey.translationStatus.Name" :class="'translation-' + survey.translationStatus.Name.type">
+                                    <i :class="'fas fa-' + (survey.translationStatus.Name.type === 'success' ? 'check' : 'times')"></i>
+                                    {{ survey.translationStatus.Name.message }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Age</label>
+                            <input type="number" v-model="survey.Age" min="18" max="120" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Gender</label>
+                            <select v-model="survey.Gender" required>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Address/Permanent Address (English)</label>
+                            <input v-model="survey.Address" @blur="translateField('survey',0, 'Address', 'RegionalAddress')" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Address (Regional/Hindi)</label>
+                            <input v-model="survey.RegionalAddress" readonly>
+                            <div class="translation-status">
+                                <span v-if="survey.translationStatus.Address" :class="'translation-' + survey.translationStatus.Address.type">
+                                    <i :class="'fas fa-' + (survey.translationStatus.Address.type === 'success' ? 'check' : 'times')"></i>
+                                    {{ survey.translationStatus.Address.message }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                    <div class="form-group">
+                        <label>Mobile Number</label>
+                        <input v-model="survey.MobileNumber" @input="validateMobileNo" maxlength="10" required>
+                        <span v-if="mobileNoError" class="error">{{ mobileNoError }}</span>
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input v-model="survey.Email" type="email">
+                    </div>
+                </div>
+                </div>
+
+                <!-- Family Members Section -->
+                <div class="form-section animate__animated animate__fadeInUp">
+                    <div class="section-header">
+                        <h2>Additional Family Members (Max 5)</h2>
+                        <button type="button" class="btn-add animate__animated animate__pulse" 
+                                @click="addMember" v-if="!showConfirmation && survey.Members.length < 5">
+                            <i class="fas fa-plus"></i> Add Member
+                        </button>
+                    </div>
+                    
+                    <div v-if="survey.Members.length >= 5" class="max-members">
+                        Maximum of 5 additional members reached (6 total including primary)
+                    </div>
+                    
+                    <transition-group name="list" tag="div" class="members-list">
+                        <div v-for="(member, index) in survey.Members" :key="member.SrNo" 
+                             class="member-card animate__animated animate__fadeIn">
+                            <div class="member-header">
+                                <h3>Member {{ member.SrNo }}</h3>
+                                <button type="button" class="btn-remove" @click="animateRemove(index)">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            
+                            <div class="member-content">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Name (English)</label>
+                                        <input v-model="member.Name" @blur="translateField('member', index, 'Name', 'RegionalName')" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Name (Regional/Hindi)</label>
+                                        <input v-model="member.RegionalName" readonly required>
+                                        <div class="translation-status">
+                                            <span v-if="member.translationStatus && member.translationStatus.Name" :class="'translation-' + member.translationStatus.Name.type">
+                                                <i :class="'fas fa-' + (member.translationStatus.Name.type === 'success' ? 'check' : 'times')"></i>
+                                                {{ member.translationStatus.Name.message }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Age</label>
+                                        <input type="number" v-model="member.Age" min="18" max="120" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Gender</label>
+                                        <select v-model="member.Gender" required>
+                                            <option value="Male">Male</option>
+                                            <option value="Female">Female</option>
+                                            <option value="Other">Other</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Mobile No</label>
+                                        <input v-model="member.MobileNo" @input="validateMemberMobileNo(index)" required>
+                                        <span v-if="member.mobileNoError" class="error">{{ member.mobileNoError }}</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label>URB No</label>
+                                    <input v-model="member.URBNo" @blur="validateMemberURBNo(index)"
+                                           :class="{'error-border': member.urbNoError}" maxlength="10" minlength="10" required>
+                                    <span v-if="member.urbNoChecking" class="checking">
+                                        <i class="fas fa-spinner fa-spin"></i> Checking availability...
+                                    </span>
+                                    <span v-if="member.urbNoError" class="error">{{ member.urbNoError }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </transition-group>
+                </div>
+
+                <button type="submit" class="btn-submit animate__animated animate__pulse" :disabled="isSubmitting">
+                    <i class="fas fa-paper-plane"></i> {{ isSubmitting ? 'Submitting...' : 'Submit Form' }}
+                </button>
+            </form>
+
+            <transition name="fade">
+                <div v-if="showConfirmation" class="confirmation animate__animated animate__zoomIn">
+                    <p><i class="fas fa-check-circle"></i> Form submitted successfully!</p>
+                    <button @click="resetForm" class="btn-reset animate__animated animate__pulse">
+                        <i class="fas fa-redo"></i> Start Another Survey
+                    </button>
+                </div>
+            </transition>
+        </div>
+
+        <!-- Modal Popup for Response Data -->
+        <div v-if="showModal" class="modal-overlay">
+            <div class="modal-content animate__animated animate__zoomIn">
+                <div class="modal-header">
+                    <h3 class="modal-title">Survey Submission Results</h3>
+                </div>
+                <div class="modal-body">
+                    <div v-if="responseData.Success" class="success-message">
+                        <i class="fas fa-check-circle"></i> {{ responseData.Message }}
+                    </div>
+                    <div v-else class="error-message">
+                        <i class="fas fa-exclamation-circle"></i> {{ responseData.Message }}
+                    </div>
+
+                    <div v-if="responseData.Results && responseData.Results.length > 0">
+                        <h4>Member Details:</h4>
+                        <table class="response-table">
+                            <thead>
+                                <tr>
+                                    <th>Sr.No</th>
+                                    <th>Name</th>
+                                    <th>URB No</th>
+                                    <th>Assigned Mobile</th>
+                                    <th>Assigned Card</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="result in responseData.Results" :key="result.SrNo">
+                                    <td>{{ result.SrNo }}</td>
+                                    <td>{{ result.Name }}</td>
+                                    <td>{{ result.URBNo }}</td>
+                                    <td>{{ result.AssignedToUserMobile || 'N/A' }}</td>
+                                    <td>{{ result.AssignedToCard || 'N/A' }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="total-members" v-if="responseData.VrmTotalMembers">
+                        Total Members in VRM: {{ responseData.VrmTotalMembers }}
+                    </div>
+                </div>
+                <div style="text-align: center;margin-top: 20px;">
+                    <button @click="closeModal" class="btn-close" style="margin-right: 10px;">
+                        <i class="fas fa-times"></i> Close
+                    </button>
+                    <button @click="closeModal(); resetForm();" class="btn-reset animate__animated animate__pulse">
+                        <i class="fas fa-redo"></i> Start Another Survey
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="hindiTranslator.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

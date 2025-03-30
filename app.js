@@ -1,5 +1,6 @@
 const base64Auth = 'UlJDVEFQSV9BRE1JTjpSUkNUQFAhUEBzcw==';
-const APIUrl='https://api.rrcharitabletrust.org/api';
+// const APIUrl='https://api.rrcharitabletrust.org/api';
+const APIUrl = 'https://rrcharitabletrust.bsite.net/api';
 new Vue({
     el: '#app',
     data: {

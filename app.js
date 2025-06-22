@@ -1,5 +1,6 @@
 const base64Auth = 'UlJDVEFQSV9BRE1JTjpSUkNUQFAhUEBzcw==';
 // const APIUrl='https://api.rrcharitabletrust.org/api';
+//const APIUrl='https://localhost:44362/api';
 const APIUrl = 'https://rrcharitabletrust.bsite.net/api';
 new Vue({
     el: '#app',
@@ -320,7 +321,7 @@ new Vue({
                     URBNo: m.URBNo,
                     IsPrimary: false
                 }))];
-                
+                const isNumeric = /^\d+$/.test(this.survey.VRM_Id.trim());
                 const payload = {
                     Name: this.survey.Name,
                     RegionalName: this.survey.RegionalName,
@@ -328,7 +329,8 @@ new Vue({
                     RegionalAddress: this.survey.RegionalAddress,
                     URBNo: this.survey.URBNo,
                     MobileNumber: this.survey.MobileNumber,
-                    VRM_Id: this.survey.VRM_Id,
+                    VRM_Id: isNumeric ? this.survey.VRM_Id.trim() : null,
+                    VRM_Name: isNumeric ? null : this.survey.VRM_Id.trim(),
                     Email:this.survey.Email,
                     Members: allMembers
                 };

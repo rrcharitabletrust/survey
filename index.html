@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <title>Survey Form 149 - WARD 25</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
@@ -13,11 +13,14 @@
 <body>
     <div id="app">
         <div class="container">
-            <h1 class="animate__animated animate__fadeIn">Survey Form 149 - WARD 25<br>मतदाता वैद्यकीय मदत कार्ड</h1>
+            <div class="animate__animated animate__fadeIn">
+                <h1>मतदाता वैद्यकीय मदत कार्ड</h1>
+                <h3 style="text-align: center;">Help line no. 8108409171<br>Application Form (आवेदन पत्र) 149</h3>
+            </div>
             <form @submit.prevent="submitForm">
                 <!-- Family Information Section -->
                 <div class="form-section animate__animated animate__fadeInUp">
-                    <h2>Family Information (Primary Member)</h2>
+                    <h2>Family Head (कुटुंब प्रमुख)</h2>
                     <div class="form-row">
                         <div class="form-group">
                             <label>URB No</label>
@@ -29,8 +32,8 @@
                             <span v-if="urbNoError" class="error">{{ urbNoError }}</span>
                         </div>
                         <div class="form-group">
-                            <label>VRM ID</label>
-                            <input type="number" v-model="survey.VRM_Id">
+                            <label>VRM ID / Name</label>
+                            <input v-model="survey.VRM_Id" placeholder="Enter VRM ID (number) or Name (text)" required>
                         </div>
                     </div>
                     
@@ -98,7 +101,7 @@
                 <!-- Family Members Section -->
                 <div class="form-section animate__animated animate__fadeInUp">
                     <div class="section-header">
-                        <h2>Additional Family Members (Max 5)</h2>
+                        <h2>Add Family Members (Max 5)</h2>
                         <button type="button" class="btn-add animate__animated animate__pulse" 
                                 @click="addMember" v-if="!showConfirmation && survey.Members.length < 5">
                             <i class="fas fa-plus"></i> Add Member

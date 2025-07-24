@@ -23,7 +23,7 @@
                     <h2>Family Head (कुटुंब प्रमुख)</h2>
                     <div class="form-row">
                         <div class="form-group">
-                            <label>URB No</label>
+                            <label>Voter id/URB No</label>
                             <input v-model="survey.URBNo" @blur="validateFamilyURBNo" maxlength="10" minlength="10" required
                                   :class="{'error-border': urbNoError}">
                             <span v-if="urbNoChecking" class="checking">
@@ -210,7 +210,7 @@
                                 <tr>
                                     <th>Sr.No</th>
                                     <th>Name</th>
-                                    <th>URB No</th>
+                                    <th>Voter id/URB No</th>
                                     <th>Assigned Mobile</th>
                                     <th>Assigned Card</th>
                                 </tr>
